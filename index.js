@@ -19,8 +19,7 @@ const {
   FAUCET_CMD,
   ADMIN_USER_ID,
   ASSET_CODE,
-  ASSET_ISSUER,
-  DB_NAME
+  ASSET_ISSUER
 } = process.env
 
 const asset = new Asset(ASSET_CODE, ASSET_ISSUER)
@@ -35,7 +34,7 @@ const txnOpts = {
   networkPassphrase,
 }
 const validateAccount = accountValidator(server, asset)
-const db = Datastore.create(`var/${DB_NAME}.db`)
+const usersDB = Datastore.create(`var/users.db`)
 
 const bot = new Client({
   intents: [
@@ -52,7 +51,7 @@ const bot = new Client({
 
 async function register (msg) {
   const { author, content } = msg
-  const user = await db.findOne({ user_id: author.id })
+  const user = await usersDB.findOne({ user_id: author.id })
   if (user) {
     return msg.reply(`You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
   }
@@ -66,7 +65,7 @@ async function register (msg) {
   }
 
   try {
-    await db.insert({
+    await usersDB.insert({
       user_id: author.id,
       username: author.username,
       address: address.address
