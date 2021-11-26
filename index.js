@@ -67,7 +67,7 @@ bot.on('messageCreate', async (msg) => {
     const { id, username } = author
     const date = new Date().toISOString()
     console.log(`${date} - ${username} ${id} entered an invalid address: ${content} - ${address.reason}`)
-    return msg.reply(`${address.reason}. Please try a different Stellar address`)
+    return msg.reply(`${address.reason}. Please try a different Stellar address.`)
   }
 
   try {
@@ -77,8 +77,10 @@ bot.on('messageCreate', async (msg) => {
       address: address.address
     })
   } catch (e) {
-    const date = new Date().toISOString()
-    console.error(`${date} - Error saving to the db`)
+    console.error(`${new Date().toISOString()} - Error saving to the db`)
+    console.error(e)
+    return msg.reply(`Something went wrong. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
+  }
 
   try {
     await msg.member.roles.add(FAUCET_ROLE)
