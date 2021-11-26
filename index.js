@@ -50,14 +50,8 @@ const bot = new Client({
   }
 })
 
-bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
-
-bot.on('messageCreate', async (msg) => {
-  const { channelId, content, author } = msg
-  if (channelId !== CHANNEL_ID_REGISTER || author.id === DISCORD_CLIENT_ID) {
-    return
-  }
-
+async function register (msg) {
+  const { author, content } = msg
   const user = await db.findOne({ user_id: author.id })
   if (user) {
     return msg.reply(`You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
@@ -96,4 +90,10 @@ bot.on('messageCreate', async (msg) => {
   return msg.reply(`Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
 })
 
+bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
+bot.on('messageCreate', async (msg) => {
+  const { channelId, content, author } = msg
+  if (author.id === DISCORD_CLIENT_ID) return
+  if (channelId === CHANNEL_ID_REGISTER) return register(msg)
+})
 bot.login(DISCORD_TOKEN)
