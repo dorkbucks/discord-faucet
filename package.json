@@ -1,0 +1,10 @@
+{
+  "name": "dorkbucks-discord-faucet",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "discord.js": "13.3.1",
+    "dotenv": "10.0.0",
+    "stellar-sdk": "9.1.0"
+  }
+}
