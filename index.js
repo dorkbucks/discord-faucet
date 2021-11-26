@@ -16,6 +16,12 @@ const bot = new Client({
     Intents.FLAGS.GUILDS,
     Intents.FLAGS.GUILD_MESSAGES,
   ],
+  presence: {
+    activities: [{
+      name: 'you 👀',
+      type: 'WATCHING'
+    }]
+  }
 })
 
 bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
