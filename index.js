@@ -14,6 +14,9 @@ const {
   DISCORD_TOKEN,
   DISCORD_GUILD_ID,
   CHANNEL_ID_REGISTER,
+  CHANNEL_ID_FAUCET,
+  FAUCET_ROLE,
+  ADMIN_USER_ID,
   ASSET_CODE,
   ASSET_ISSUER,
   DB_NAME
@@ -72,8 +75,17 @@ bot.on('messageCreate', async (msg) => {
   } catch (e) {
     const date = new Date().toISOString()
     console.error(`${date} - Error saving to the db`)
+
+  try {
+    await msg.member.roles.add(FAUCET_ROLE)
+  } catch (e) {
+    console.error(`${new Date().toISOString()} - Error assigning role`)
     console.error(e)
+    return msg.reply(`Something went wrong giving you access to the <#${CHANNEL_ID_FAUCET}>. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
   }
+
+  return msg.reply(`Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
+
 })
 
 bot.login(DISCORD_TOKEN)
