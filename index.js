@@ -57,8 +57,12 @@ bot.on('messageCreate', async (msg) => {
     return
   }
 
-  const address = await validateAccount(content)
+  const user = await db.findOne({ user_id: author.id })
+  if (user) {
+    return msg.reply(`You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
+  }
 
+  const address = await validateAccount(content)
   if (!address.is_valid) {
     const { id, username } = author
     const date = new Date().toISOString()
