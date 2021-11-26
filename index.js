@@ -16,6 +16,7 @@ const {
   CHANNEL_ID_REGISTER,
   CHANNEL_ID_FAUCET,
   FAUCET_ROLE,
+  FAUCET_CMD,
   ADMIN_USER_ID,
   ASSET_CODE,
   ASSET_ISSUER,
@@ -91,7 +92,7 @@ bot.on('messageCreate', async (msg) => {
   }
 
   const faucetChannel = bot.channels.cache.get(CHANNEL_ID_FAUCET)
-  faucetChannel.send(`<@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "gib".`)
+  faucetChannel.send(`<@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "${FAUCET_CMD}".`)
   return msg.reply(`Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
 })
 
