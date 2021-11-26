@@ -3,6 +3,7 @@ dotenv.config()
 
 import { Client, Intents } from 'discord.js'
 import { Networks, Server, BASE_FEE, Asset } from 'stellar-sdk'
+import Datastore from 'nedb-promises'
 
 import { accountValidator } from './lib/account_validator.js'
 
@@ -14,7 +15,8 @@ const {
   DISCORD_GUILD_ID,
   CHANNEL_ID_REGISTER,
   ASSET_CODE,
-  ASSET_ISSUER
+  ASSET_ISSUER,
+  DB_NAME
 } = process.env
 
 const asset = new Asset(ASSET_CODE, ASSET_ISSUER)
@@ -29,6 +31,8 @@ const txnOpts = {
   networkPassphrase,
 }
 const validateAccount = accountValidator(server, asset)
+const db = Datastore.create(`var/${DB_NAME}.db`)
+
 const bot = new Client({
   intents: [
     Intents.FLAGS.GUILDS,
@@ -57,6 +61,18 @@ bot.on('messageCreate', async (msg) => {
     const date = new Date().toISOString()
     console.log(`${date} - ${username} ${id} entered an invalid address: ${content} - ${address.reason}`)
     return msg.reply(`${address.reason}. Please try a different Stellar address`)
+  }
+
+  try {
+    await db.insert({
+      user_id: author.id,
+      username: author.username,
+      address: address.address
+    })
+  } catch (e) {
+    const date = new Date().toISOString()
+    console.error(`${date} - Error saving to the db`)
+    console.error(e)
   }
 })
 
