@@ -90,8 +90,9 @@ bot.on('messageCreate', async (msg) => {
     return msg.reply(`Something went wrong giving you access to the <#${CHANNEL_ID_FAUCET}>. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
   }
 
+  const faucetChannel = bot.channels.cache.get(CHANNEL_ID_FAUCET)
+  faucetChannel.send(`<@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "gib".`)
   return msg.reply(`Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
-
 })
 
 bot.login(DISCORD_TOKEN)
