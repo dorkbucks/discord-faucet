@@ -4,6 +4,7 @@ dotenv.config()
 import { Client, Intents } from 'discord.js'
 import { Networks, Server, BASE_FEE, Asset, Keypair } from 'stellar-sdk'
 import Datastore from 'nedb-promises'
+import { add } from 'date-fns'
 
 import { accountValidator } from './lib/account_validator.js'
 import { sendPayment } from './lib/send_payment.js'
@@ -40,6 +41,7 @@ const faucetAccount = Keypair.fromSecret(FAUCET_ACCOUNT_SECRETKEY)
 const send = sendPayment.bind(null, server, networkPassphrase, asset, faucetAccount)
 const validateAccount = accountValidator(server, asset)
 const usersDB = Datastore.create(`var/users.db`)
+const claimsDB = Datastore.create(`var/claims.db`)
 
 const bot = new Client({
   intents: [
@@ -100,12 +102,24 @@ async function claim (msg) {
 
   if (cmd !== FAUCET_CMD) return
 
+  const now = new Date()
   const { address } = await usersDB.findOne({ user_id: author.id })
   const to = Keypair.fromPublicKey(address)
   const amount = 1000
   const faucetClaim = await send(to, amount)
 
   msg.reply(`${amount} ${asset.code} sent! You may claim again in 24 hours.`)
+
+  try {
+    await claimsDB.insert({
+      user_id: author.id,
+      claimed_on: now,
+      next_claim: add(now, { hours: 24 })
+    })
+  } catch (e) {
+    console.error(`${new Date().toISOString()} - Error saving to the claims db`)
+    console.error(e)
+  }
 }
 
 bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
