@@ -118,6 +118,12 @@ async function claim (msg) {
   const amount = 1000
   const faucetClaim = await send(to, amount)
 
+  if (!faucetClaim.success) {
+    console.error(`${now.toISOString()} - Error sending payment. ${faucetClaim.message}`)
+    console.error(faucetClaim.errorData)
+    return msg.reply(`Something went wrong sending to your address. You should be able to try again immediately.`)
+  }
+
   msg.reply(`${amount} ${asset.code} sent! You may claim again in 24 hours.`)
 
   try {
