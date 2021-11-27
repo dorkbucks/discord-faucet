@@ -4,7 +4,7 @@ dotenv.config()
 import { Client, Intents } from 'discord.js'
 import { Networks, Server, BASE_FEE, Asset, Keypair } from 'stellar-sdk'
 import Datastore from 'nedb-promises'
-import { add } from 'date-fns'
+import { add, compareAsc, formatDistance } from 'date-fns'
 
 import { accountValidator } from './lib/account_validator.js'
 import { sendPayment } from './lib/send_payment.js'
@@ -102,7 +102,15 @@ async function claim (msg) {
 
   if (cmd !== FAUCET_CMD) return
 
+  const lastClaim = await claimsDB.findOne({ user_id: author.id }).sort({ date: -1 })
   const now = new Date()
+  const canClaim = lastClaim ? compareAsc(now, lastClaim.next_claim) > -1 : true
+
+  if (!canClaim) {
+    const nextClaim = formatDistance(lastClaim.next_claim, now, { addSuffix: true })
+    return msg.reply(`Try again ${nextClaim}`)
+  }
+
   const { address } = await usersDB.findOne({ user_id: author.id })
   const to = Keypair.fromPublicKey(address)
   const amount = 1000
