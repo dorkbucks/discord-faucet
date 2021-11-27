@@ -8,6 +8,7 @@ import { add, compareAsc, formatDistance } from 'date-fns'
 
 import { accountValidator } from './lib/account_validator.js'
 import { sendPayment } from './lib/send_payment.js'
+import { shortenAccountID } from './lib/shorten_account_id.js'
 
 
 const {
@@ -124,7 +125,7 @@ async function claim (msg) {
     return msg.reply(`Something went wrong sending to your address. You should be able to try again immediately.`)
   }
 
-  msg.reply(`${amount} ${asset.code} sent! You may claim again in 24 hours.`)
+  msg.reply(`${amount} ${asset.code} sent to ${shortenAccountID(address)}! You may claim again in 24 hours.`)
 
   try {
     await claimsDB.insert({
