@@ -92,12 +92,20 @@ async function register (msg) {
   const faucetChannel = bot.channels.cache.get(CHANNEL_ID_FAUCET)
   faucetChannel.send(`<@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "${FAUCET_CMD}".`)
   return msg.reply(`Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
-})
+}
+
+async function claim (msg) {
+  const { author, content } = msg
+  const cmd = content.toLowerCase().trim()
+
+  if (cmd !== FAUCET_CMD) return
+}
 
 bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
 bot.on('messageCreate', async (msg) => {
   const { channelId, content, author } = msg
   if (author.id === DISCORD_CLIENT_ID) return
   if (channelId === CHANNEL_ID_REGISTER) return register(msg)
+  if (channelId === CHANNEL_ID_FAUCET) return claim(msg)
 })
 bot.login(DISCORD_TOKEN)
