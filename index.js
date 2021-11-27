@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import { Client, Intents } from 'discord.js'
-import { Networks, Server, BASE_FEE, Asset } from 'stellar-sdk'
+import { Networks, Server, BASE_FEE, Asset, Keypair } from 'stellar-sdk'
 import Datastore from 'nedb-promises'
 
 import { accountValidator } from './lib/account_validator.js'
@@ -19,7 +19,8 @@ const {
   FAUCET_CMD,
   ADMIN_USER_ID,
   ASSET_CODE,
-  ASSET_ISSUER
+  ASSET_ISSUER,
+  FAUCET_ACCOUNT_SECRETKEY
 } = process.env
 
 const asset = new Asset(ASSET_CODE, ASSET_ISSUER)
@@ -33,6 +34,8 @@ const txnOpts = {
   fee: BASE_FEE,
   networkPassphrase,
 }
+
+const faucetAccount = Keypair.fromSecret(FAUCET_ACCOUNT_SECRETKEY)
 const validateAccount = accountValidator(server, asset)
 const usersDB = Datastore.create(`var/users.db`)
 
