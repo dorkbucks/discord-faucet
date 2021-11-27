@@ -117,15 +117,19 @@ async function claim (msg) {
   const { address } = await usersDB.findOne({ user_id: author.id })
   const to = Keypair.fromPublicKey(address)
   const amount = 1000
+  const shortAddress = shortenAccountID(address)
+  let reply = msg.reply(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
   const faucetClaim = await send(to, amount)
+
+  reply = await reply
 
   if (!faucetClaim.success) {
     console.error(`${now.toISOString()} - Error sending payment. ${faucetClaim.message}`)
     console.error(faucetClaim.errorData)
-    return msg.reply(`Something went wrong sending to your address. You should be able to try again immediately.`)
+    return reply.edit(`:x: Something went wrong. You should be able to try again immediately.`)
   }
 
-  msg.reply(`${amount} ${asset.code} sent to ${shortenAccountID(address)}! You may claim again in 24 hours.`)
+  reply.edit(`:white_check_mark: Sent ${amount} ${asset.code} to ${shortAddress}! You may claim again in 24 hours.`)
 
   try {
     await claimsDB.insert({
