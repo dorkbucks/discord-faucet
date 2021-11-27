@@ -104,6 +104,8 @@ async function claim (msg) {
 
   const lastClaim = await claimsDB.findOne({ user_id: author.id }).sort({ date: -1 })
   const now = new Date()
+  // DB returns null (falsey) if no record is found. This is probably the user's
+  // first time claiming so allow it.
   const canClaim = lastClaim ? compareAsc(now, lastClaim.next_claim) > -1 : true
 
   if (!canClaim) {
