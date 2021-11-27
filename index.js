@@ -6,6 +6,7 @@ import { Networks, Server, BASE_FEE, Asset, Keypair } from 'stellar-sdk'
 import Datastore from 'nedb-promises'
 
 import { accountValidator } from './lib/account_validator.js'
+import { sendPayment } from './lib/send_payment.js'
 
 
 const {
@@ -36,6 +37,7 @@ const txnOpts = {
 }
 
 const faucetAccount = Keypair.fromSecret(FAUCET_ACCOUNT_SECRETKEY)
+const send = sendPayment.bind(null, server, networkPassphrase, asset, faucetAccount)
 const validateAccount = accountValidator(server, asset)
 const usersDB = Datastore.create(`var/users.db`)
 
