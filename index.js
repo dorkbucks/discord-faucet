@@ -99,6 +99,13 @@ async function claim (msg) {
   const cmd = content.toLowerCase().trim()
 
   if (cmd !== FAUCET_CMD) return
+
+  const { address } = await usersDB.findOne({ user_id: author.id })
+  const to = Keypair.fromPublicKey(address)
+  const amount = 1000
+  const faucetClaim = await send(to, amount)
+
+  msg.reply(`${amount} ${asset.code} sent! You may claim again in 24 hours.`)
 }
 
 bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
