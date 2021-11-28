@@ -6,7 +6,7 @@ import { Networks, Server, BASE_FEE, Asset, Keypair } from 'stellar-sdk'
 import Datastore from 'nedb-promises'
 import { add, compareAsc, formatDistance } from 'date-fns'
 
-import { accountValidator } from './lib/account_validator.js'
+import { validateAccount } from './lib/validate_account.js'
 import { sendPayment } from './lib/send_payment.js'
 import { shortenAccountID } from './lib/shorten_account_id.js'
 
@@ -40,7 +40,7 @@ const txnOpts = {
 
 const faucetAccount = Keypair.fromSecret(FAUCET_ACCOUNT_SECRETKEY)
 const send = sendPayment.bind(null, server, networkPassphrase, asset, faucetAccount)
-const validateAccount = accountValidator(server, asset)
+const validate = validateAccount.bind(null, server, asset)
 const usersDB = Datastore.create(`var/users.db`)
 const claimsDB = Datastore.create(`var/claims.db`)
 
@@ -64,7 +64,7 @@ async function register (msg) {
     return msg.reply(`You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
   }
 
-  const address = await validateAccount(content)
+  const address = await validate(content)
   if (!address.is_valid) {
     const { id, username } = author
     const date = new Date().toISOString()
@@ -118,7 +118,7 @@ async function claim (msg) {
 
   const { address } = await usersDB.findOne({ user_id: author.id })
 
-  const validation = await validateAccount(content)
+  const validation = await validate(content)
   if (!validation.is_valid) {
     const date = new Date().toISOString()
     console.warn(`${date} - ${author.username}'s' Stellar address is now invalid - ${validation.reason}`)
