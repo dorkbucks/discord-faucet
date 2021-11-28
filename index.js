@@ -126,7 +126,7 @@ async function claim (msg) {
   }
 
   const to = Keypair.fromPublicKey(address)
-  const amount = 1000
+  const amount = Math.floor(Math.random() * (1000 - 500 + 1)) + 500
   const shortAddress = shortenAccountID(address)
   reply = await reply
   reply.edit(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
