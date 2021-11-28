@@ -59,9 +59,12 @@ const bot = new Client({
 
 async function register (msg) {
   const { author, content } = msg
+
+  let reply = msg.reply(`<a:loading:914121630060515338> Welcome ${author.username}! Checking your account.`)
+
   const user = await usersDB.findOne({ user_id: author.id })
   if (user) {
-    return msg.reply(`You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
+    return (await reply).edit(`:x: You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
   }
 
   const address = await validate(content)
@@ -69,7 +72,7 @@ async function register (msg) {
     const { id, username } = author
     const date = new Date().toISOString()
     console.log(`${date} - ${username} ${id} entered an invalid address: ${content} - ${address.reason}`)
-    return msg.reply(`${address.reason}. Please try a different Stellar address.`)
+    return (await reply).edit(`:x: ${address.reason}. Please try a different Stellar address.`)
   }
 
   try {
@@ -81,7 +84,7 @@ async function register (msg) {
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error saving to the db`)
     console.error(e)
-    return msg.reply(`Something went wrong. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
+    return (await reply).edit(`:x: Something went wrong. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
   }
 
   try {
@@ -89,12 +92,12 @@ async function register (msg) {
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error assigning role`)
     console.error(e)
-    return msg.reply(`Something went wrong giving you access to the <#${CHANNEL_ID_FAUCET}>. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
+    return (await reply).edit(`:x: Something went wrong giving you access to the <#${CHANNEL_ID_FAUCET}>. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
   }
 
   const faucetChannel = bot.channels.cache.get(CHANNEL_ID_FAUCET)
-  faucetChannel.send(`<@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "${FAUCET_CMD}".`)
-  return msg.reply(`Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
+  faucetChannel.send(`:white_check_mark: <@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "${FAUCET_CMD}".`)
+  return (await reply).edit(`:white_check_mark: Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
 }
 
 async function claim (msg) {
