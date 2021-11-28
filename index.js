@@ -103,6 +103,8 @@ async function claim (msg) {
 
   if (cmd !== FAUCET_CMD) return
 
+  let reply = msg.reply(`<a:loading:914121630060515338> Welcome back ${author.username}! Checking if you can claim.`)
+
   const lastClaim = await claimsDB.findOne({ user_id: author.id }).sort({ date: -1 })
   const now = new Date()
   // DB returns null (falsey) if no record is found. This is probably the user's
@@ -111,7 +113,7 @@ async function claim (msg) {
 
   if (!canClaim) {
     const nextClaim = formatDistance(lastClaim.next_claim, now, { addSuffix: true })
-    return msg.reply(`Try again ${nextClaim}`)
+    return (await reply).edit(`:x: Try again ${nextClaim}`)
   }
 
   const { address } = await usersDB.findOne({ user_id: author.id })
@@ -120,16 +122,15 @@ async function claim (msg) {
   if (!validation.is_valid) {
     const date = new Date().toISOString()
     console.warn(`${date} - ${author.username}'s' Stellar address is now invalid - ${validation.reason}`)
-    return msg.reply(`Your address is now invalid: ${validation.reason}. <@${ADMIN_USER_ID}>, halp!`)
+    return (await reply).edit(`:x: Your address is now invalid: ${validation.reason}. <@${ADMIN_USER_ID}>, halp!`)
   }
 
   const to = Keypair.fromPublicKey(address)
   const amount = 1000
   const shortAddress = shortenAccountID(address)
-  let reply = msg.reply(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
-  const faucetClaim = await send(to, amount)
-
   reply = await reply
+  reply.edit(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
+  const faucetClaim = await send(to, amount)
 
   if (!faucetClaim.success) {
     console.error(`${now.toISOString()} - Error sending payment. ${faucetClaim.message}`)
