@@ -9,6 +9,7 @@ import { add, compareAsc, formatDistance } from 'date-fns'
 import { validateAccount } from './lib/validate_account.js'
 import { sendPayment } from './lib/send_payment.js'
 import { shortenAccountID } from './lib/shorten_account_id.js'
+import { random } from './lib/random.js'
 
 
 const {
@@ -131,7 +132,7 @@ async function claim (msg) {
   }
 
   const to = Keypair.fromPublicKey(address)
-  const amount = Math.floor(Math.random() * (AMOUNT_MAX - AMOUNT_MIN + 1)) + AMOUNT_MIN
+  const amount = random(AMOUNT_MIN, AMOUNT_MAX)
   const shortAddress = shortenAccountID(address)
   reply = await reply
   reply.edit(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
