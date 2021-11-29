@@ -23,6 +23,8 @@ const {
   ADMIN_USER_ID,
   ASSET_CODE,
   ASSET_ISSUER,
+  AMOUNT_MIN,
+  AMOUNT_MAX,
   FAUCET_ACCOUNT_SECRETKEY
 } = process.env
 
@@ -129,7 +131,7 @@ async function claim (msg) {
   }
 
   const to = Keypair.fromPublicKey(address)
-  const amount = Math.floor(Math.random() * (1000 - 500 + 1)) + 500
+  const amount = Math.floor(Math.random() * (AMOUNT_MAX - AMOUNT_MIN + 1)) + AMOUNT_MIN
   const shortAddress = shortenAccountID(address)
   reply = await reply
   reply.edit(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
