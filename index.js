@@ -132,7 +132,7 @@ async function claim (msg) {
   }
 
   const to = Keypair.fromPublicKey(address)
-  const amount = random(AMOUNT_MIN, AMOUNT_MAX)
+  const amount = random(parseInt(AMOUNT_MIN), parseInt(AMOUNT_MAX))
   const shortAddress = shortenAccountID(address)
   reply = await reply
   reply.edit(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
