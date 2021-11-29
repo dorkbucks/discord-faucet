@@ -150,7 +150,8 @@ async function claim (msg) {
     await claimsDB.insert({
       user_id: author.id,
       claimed_on: now,
-      next_claim: add(now, { hours: 24 })
+      next_claim: add(now, { hours: 24 }),
+      tx_hash: faucetClaim.tx_hash
     })
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error saving to the claims db`)
