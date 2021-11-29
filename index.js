@@ -1,15 +1,16 @@
-import dotenv from 'dotenv'
+const dotenv = require('dotenv')
 dotenv.config()
 
-import { Client, Intents } from 'discord.js'
-import { Networks, Server, BASE_FEE, Asset, Keypair } from 'stellar-sdk'
-import Datastore from 'nedb-promises'
-import { add, compareAsc, formatDistance } from 'date-fns'
+const { Client, Intents } = require('discord.js')
 
-import { validateAccount } from './lib/validate_account.js'
-import { sendPayment } from './lib/send_payment.js'
-import { shortenAccountID } from './lib/shorten_account_id.js'
-import { random } from './lib/random.js'
+const { Networks, Server, BASE_FEE, Asset, Keypair } = require('stellar-sdk')
+const Datastore = require('nedb-promises')
+const { add, compareAsc, formatDistance } = require('date-fns')
+
+const { validateAccount } = require('./lib/validate_account.js')
+const { sendPayment } = require('./lib/send_payment.js')
+const { shortenAccountID } = require('./lib/shorten_account_id.js')
+const { random } = require('./lib/random.js')
 
 
 const {

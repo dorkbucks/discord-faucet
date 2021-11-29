@@ -1,7 +1,6 @@
 {
   "name": "dorkbucks-discord-faucet",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "date-fns": "2.26.0",
     "discord.js": "13.3.1",
