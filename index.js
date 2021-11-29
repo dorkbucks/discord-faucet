@@ -38,7 +38,7 @@ const HORIZON_URL = `https://horizon${testnet ? '-testnet' : ''}.stellar.org`
 const TX_URL = `https://stellar.expert/explorer/${testnet ? 'testnet' : 'public'}/tx`
 const server = new Server(HORIZON_URL)
 const txnOpts = {
-  fee: 500,
+  fee: 1000,
   networkPassphrase,
 }
 
