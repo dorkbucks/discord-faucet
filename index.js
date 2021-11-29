@@ -100,7 +100,7 @@ async function register (msg) {
   }
 
   const faucetChannel = bot.channels.cache.get(CHANNEL_ID_FAUCET)
-  faucetChannel.send(`:white_check_mark: <@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing "${FAUCET_CMD}".`)
+  faucetChannel.send(`:white_check_mark: <@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing **${FAUCET_CMD}**.`)
   return (await reply).edit(`:white_check_mark: Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
 }
 
