@@ -124,7 +124,7 @@ async function claim (msg) {
 
   const { address } = await usersDB.findOne({ user_id: author.id })
 
-  const validation = await validate(content)
+  const validation = await validate(address)
   if (!validation.is_valid) {
     const date = new Date().toISOString()
     console.warn(`${date} - ${author.username}'s' Stellar address is now invalid - ${validation.reason}`)
