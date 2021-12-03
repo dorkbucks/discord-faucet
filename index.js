@@ -33,18 +33,19 @@ const {
 const asset = new Asset(ASSET_CODE, ASSET_ISSUER)
 const testnet = NODE_ENV === 'development'
 const NETWORK = testnet ? 'TESTNET' : 'PUBLIC'
-const networkPassphrase = Networks[NETWORK]
 const HORIZON_URL = `https://horizon${testnet ? '-testnet' : ''}.stellar.org`
 const TX_URL = `https://stellar.expert/explorer/${testnet ? 'testnet' : 'public'}/tx`
-const server = new Server(HORIZON_URL)
-const txnOpts = {
-  fee: 2000,
-  networkPassphrase,
+const stellarConfig = {
+  server: new Server(HORIZON_URL),
+  txnOpts: {
+    fee: 1000,
+    networkPassphrase: Networks[NETWORK]
+  }
 }
 
 const faucetAccount = Keypair.fromSecret(FAUCET_ACCOUNT_SECRETKEY)
-const send = sendPayment.bind(null, server, networkPassphrase, asset, faucetAccount)
-const validate = validateAccount.bind(null, server, asset)
+const send = sendPayment.bind(null, stellarConfig, asset, faucetAccount)
+const validate = validateAccount.bind(null, stellarConfig.server, asset)
 const usersDB = Datastore.create(`var/users.db`)
 const claimsDB = Datastore.create(`var/claims.db`)
 
