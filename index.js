@@ -124,8 +124,14 @@ async function claim (msg) {
     return (await reply).edit(`:x: Try again ${nextClaim}`)
   }
 
-  const { address } = await usersDB.findOne({ user_id: author.id })
+  const user = await usersDB.findOne({ user_id: author.id })
+  if (!user) {
+    const date = new Date().toISOString()
+    console.warn(`${date} - ${author.username} is not in the DB but has access to the faucet.`)
+    return (await reply).edit(`:x: I couldn't find you in the database. <@${ADMIN_USER_ID}>, halp!`)
+  }
 
+  const { address } = user
   const validation = await validate(address)
   if (!validation.is_valid) {
     const date = new Date().toISOString()
