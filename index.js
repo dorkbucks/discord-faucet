@@ -49,6 +49,8 @@ const validate = validateAccount.bind(null, stellarConfig.server, asset)
 const usersDB = Datastore.create(`var/users.db`)
 const claimsDB = Datastore.create(`var/claims.db`)
 
+const pendingClaims = new Map()
+
 const bot = new Client({
   intents: [
     Intents.FLAGS.GUILDS,
@@ -113,7 +115,7 @@ async function claim (msg) {
 
   let reply = msg.reply(`<a:loading:914121630060515338> Welcome back ${author.username}! Checking if you can claim.`)
 
-  const lastClaim = await claimsDB.findOne({ user_id: author.id }).sort({ date: -1 })
+  const lastClaim = await claimsDB.findOne({ user_id: author.id }).sort({ claimed_on: -1 })
   const now = new Date()
   // DB returns null (falsey) if no record is found. This is probably the user's
   // first time claiming so allow it.
@@ -155,7 +157,7 @@ async function claim (msg) {
   reply.edit(`:white_check_mark: Sent ${amount} ${asset.code} to ${shortAddress}! You may claim again in 24 hours.`)
 
   try {
-    await claimsDB.insert({
+    return await claimsDB.insert({
       user_id: author.id,
       claimed_on: now,
       next_claim: add(now, { hours: 24 }),
@@ -174,6 +176,11 @@ bot.on('messageCreate', async (msg) => {
   const { channelId, content, author } = msg
   if (author.id === DISCORD_CLIENT_ID) return
   if (channelId === CHANNEL_ID_REGISTER) return register(msg)
-  if (channelId === CHANNEL_ID_FAUCET) return claim(msg)
+  if (channelId === CHANNEL_ID_FAUCET) {
+    if (pendingClaims.get(author.id)) return
+    pendingClaims.set(author.id, true)
+    await claim(msg)
+    pendingClaims.delete(author.id)
+  }
 })
 bot.login(DISCORD_TOKEN)
