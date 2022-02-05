@@ -12,7 +12,7 @@ See instructions below.
 # Installation
 **Clone this repository**
 ``` sh
-git clone
+git clone https://github.com/dorkbucks/discord-faucet
 ```
 
 **Install dependencies**
