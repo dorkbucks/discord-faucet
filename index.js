@@ -27,6 +27,7 @@ const {
   ASSET_ISSUER,
   AMOUNT_MIN,
   AMOUNT_MAX,
+  MAX_TXN_FEE,
   FAUCET_ACCOUNT_SECRETKEY
 } = process.env
 
@@ -38,7 +39,7 @@ const TX_URL = `https://stellar.expert/explorer/${testnet ? 'testnet' : 'public'
 const stellarConfig = {
   server: new Server(HORIZON_URL),
   txnOpts: {
-    fee: 1000,
+    fee: MAX_TXN_FEE,
     networkPassphrase: Networks[NETWORK]
   }
 }
