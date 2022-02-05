@@ -101,3 +101,7 @@ The bot's `APPLICATION ID`
 - `DISCORD_TOKEN`
 
 The bot's token
+
+
+# License
+Licensed under the GNU Affero General Public License. See the [LICENSE](./LICENSE) file for details.
