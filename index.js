@@ -20,7 +20,7 @@ const {
   DISCORD_GUILD_ID,
   CHANNEL_ID_REGISTER,
   CHANNEL_ID_FAUCET,
-  FAUCET_ROLE,
+  FAUCET_ROLE_ID,
   FAUCET_CMD,
   ADMIN_USER_ID,
   ASSET_CODE,
@@ -100,7 +100,7 @@ async function register (msg) {
   }
 
   try {
-    await msg.member.roles.add(FAUCET_ROLE)
+    await msg.member.roles.add(FAUCET_ROLE_ID)
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error assigning role`)
     console.error(e)
