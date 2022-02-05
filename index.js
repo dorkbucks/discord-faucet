@@ -75,6 +75,10 @@ async function register (msg) {
     return (await reply).edit(`:x: You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
   }
 
+  if (user.address === content) {
+    return (await reply).edit(`:x: That address is already registered to another user.`)
+  }
+
   const address = await validate(content)
   if (!address.is_valid) {
     const { id, username } = author
