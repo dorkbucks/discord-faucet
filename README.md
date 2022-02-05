@@ -1,21 +1,29 @@
 # Requirements
 
-## node v17.x.x
+**node v17.x.x**
+
 This is only tested on node v17.x.x.
 
-## Your own Discord bot
+**Your own Discord bot**
+
 See instructions below.
 
 
 # Installation
-## Clone this repository
-`git clone`
+**Clone this repository**
+``` sh
+git clone
+```
 
-## Install dependencies
-`npm install`
+**Install dependencies**
+``` sh
+npm install
+```
 
-## Start the bot
-`npm start`
+**Start the bot**
+``` sh
+npm start
+```
 
 _NOTE: Read the set up instructions below before starting the bot._
 
@@ -30,12 +38,15 @@ _NOTE: Read the set up instructions below before starting the bot._
 On your server, you need to create the following:
 
 - **Faucet role**
+
 This role is for limiting access to the faucet channel to registered members.
 
 - **Registration channel**
+
 This is where your members will enter their Stellar addresses to register for the faucet. Addresses will be validated to ensure they can receive your token. If the address passes validation, the member will be given the `FAUCET_ROLE` you define.
 
 - **Faucet channel**
+
 When creating this channel, make sure to only give access to members with the `FAUCET_ROLE`. Any text entered here that isn't the `FAUCET_CMD` (case-insensitive) will be ignore by the bot.
 
 You can name the role and channels whatever you want.
