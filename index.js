@@ -47,6 +47,12 @@ const send = sendPayment.bind(null, stellarConfig, asset, faucetAccount)
 const validate = validateAccount.bind(null, stellarConfig.server, asset)
 const usersDB = Datastore.create(`var/users.db`)
 
+let statusEmojis = {
+  loading: ':hourglass:',
+  success: ':white_check_mark:',
+  error: ':x:'
+}
+
 const pendingClaims = new Map()
 
 const bot = new Client({
@@ -65,15 +71,15 @@ const bot = new Client({
 async function register (msg) {
   const { author, content } = msg
 
-  let reply = msg.reply(`<a:loading:914121630060515338> Welcome ${author.username}! Checking your account.`)
+  let reply = msg.reply(`${statusEmojis.loading} Welcome ${author.username}! Checking your account.`)
 
   const user = await usersDB.findOne({ user_id: author.id })
   if (user) {
-    return (await reply).edit(`:x: You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
+    return (await reply).edit(`${statusEmojis.error} You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
   }
 
   if (user?.address === content) {
-    return (await reply).edit(`:x: That address is already registered to another user.`)
+    return (await reply).edit(`${statusEmojis.error} That address is already registered to another user.`)
   }
 
   const address = await validate(content)
@@ -81,7 +87,7 @@ async function register (msg) {
     const { id, username } = author
     const date = new Date().toISOString()
     console.log(`${date} - ${username} ${id} entered an invalid address: ${content} - ${address.reason}`)
-    return (await reply).edit(`:x: ${address.reason}. Please try a different Stellar address.`)
+    return (await reply).edit(`${statusEmojis.error} ${address.reason}. Please try a different Stellar address.`)
   }
 
   try {
@@ -94,7 +100,7 @@ async function register (msg) {
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error saving to the db`)
     console.error(e)
-    return (await reply).edit(`:x: Something went wrong. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
+    return (await reply).edit(`${statusEmojis.error} Something went wrong. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
   }
 
   try {
@@ -102,12 +108,12 @@ async function register (msg) {
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error assigning role`)
     console.error(e)
-    return (await reply).edit(`:x: Something went wrong giving you access to the <#${CHANNEL_ID_FAUCET}>. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
+    return (await reply).edit(`${statusEmojis.error} Something went wrong giving you access to the <#${CHANNEL_ID_FAUCET}>. WTF <@${ADMIN_USER_ID}>? Fix it you dork!`)
   }
 
   const faucetChannel = bot.channels.cache.get(CHANNEL_ID_FAUCET)
-  faucetChannel.send(`:white_check_mark: <@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing **${FAUCET_CMD}**.`)
-  return (await reply).edit(`:white_check_mark: Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
+  faucetChannel.send(`${statusEmojis.success} <@${author.id}> Welcome to the ${asset.code} faucet. You may claim every 24 hours by typing **${FAUCET_CMD}**.`)
+  return (await reply).edit(`${statusEmojis.success} Success! You now have access to <#${CHANNEL_ID_FAUCET}>.`)
 }
 
 async function claim (msg) {
@@ -116,14 +122,14 @@ async function claim (msg) {
 
   if (cmd !== FAUCET_CMD) return
 
-  let reply = msg.reply(`<a:loading:914121630060515338> Welcome back ${author.username}! Checking if you can claim.`)
+  let reply = msg.reply(`${statusEmojis.loading} Welcome back ${author.username}! Checking if you can claim.`)
 
   const user = await usersDB.findOne({ user_id: author.id })
 
   if (!user) {
     const date = new Date().toISOString()
     console.warn(`${date} - ${author.username} is not in the DB but has access to the faucet.`)
-    return (await reply).edit(`:x: I couldn't find you in the database. <@${ADMIN_USER_ID}>, halp!`)
+    return (await reply).edit(`${statusEmojis.error} I couldn't find you in the database. <@${ADMIN_USER_ID}>, halp!`)
   }
 
   const nextClaim = user.next_claim
@@ -135,7 +141,7 @@ async function claim (msg) {
   if (!canClaim) {
     const _now = add(now, { hours: 23, minutes: 53 })
     const when = formatDistance(nextClaim, now, { addSuffix: true })
-    return (await reply).edit(`:x: Try again ${when}`)
+    return (await reply).edit(`${statusEmojis.error} Try again ${when}`)
   }
 
   const { address } = user
@@ -143,23 +149,23 @@ async function claim (msg) {
   if (!validation.is_valid) {
     const date = new Date().toISOString()
     console.warn(`${date} - ${author.username}'s' Stellar address is now invalid - ${validation.reason}`)
-    return (await reply).edit(`:x: Your address is now invalid: ${validation.reason}. <@${ADMIN_USER_ID}>, halp!`)
+    return (await reply).edit(`${statusEmojis.error} Your address is now invalid: ${validation.reason}. <@${ADMIN_USER_ID}>, halp!`)
   }
 
   const to = Keypair.fromPublicKey(address)
   const amount = random(parseInt(AMOUNT_MIN), parseInt(AMOUNT_MAX))
   const shortAddress = shortenAccountID(address)
   reply = await reply
-  reply.edit(`<a:loading:914121630060515338> Sending ${amount} ${asset.code} to ${shortAddress}.`)
+  reply.edit(`${statusEmojis.loading} Sending ${amount} ${asset.code} to ${shortAddress}.`)
   const faucetClaim = await send(to, amount)
 
   if (!faucetClaim.success) {
     console.error(`${now.toISOString()} - Error sending payment. ${faucetClaim.reason}`)
     console.error(faucetClaim.errorData)
-    return reply.edit(`:x: Something went wrong. You should be able to try again immediately.`)
+    return reply.edit(`${statusEmojis.error} Something went wrong. You should be able to try again immediately.`)
   }
 
-  reply.edit(`:white_check_mark: Sent ${amount} ${asset.code} to ${shortAddress}! You may claim again in 24 hours.`)
+  reply.edit(`${statusEmojis.success} Sent ${amount} ${asset.code} to ${shortAddress}! You may claim again in 24 hours.`)
 
   try {
     return await usersDB.update({ user_id: author.id }, {
@@ -171,7 +177,14 @@ async function claim (msg) {
   }
 }
 
-bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
+bot.once('ready', () => {
+  console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`)
+  bot.emojis.cache.forEach((emoji) => {
+    if (emoji.name === 'faucet_loading') statusEmojis.loading = emoji
+    if (emoji.name === 'faucet_success') statusEmojis.success = emoji
+    if (emoji.name === 'faucet_error') statusEmojis.error = emoji
+  })
+})
 bot.on('messageCreate', async (msg) => {
   const { channelId, author } = msg
   if (author.id === DISCORD_CLIENT_ID) return
