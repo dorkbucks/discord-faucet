@@ -97,10 +97,6 @@ The ID of the registration channel
 
 The ID of the faucet channel
 
-- `DISCORD_GUILD_ID`
-
-The ID of the server
-
 - `ADMIN_USER_ID`
 
 The ID of the admin/user that will get pinged for any errors
