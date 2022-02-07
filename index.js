@@ -34,7 +34,6 @@ const asset = new Asset(ASSET_CODE, ASSET_ISSUER)
 const testnet = NODE_ENV === 'development'
 const NETWORK = testnet ? 'TESTNET' : 'PUBLIC'
 const HORIZON_URL = `https://horizon${testnet ? '-testnet' : ''}.stellar.org`
-const TX_URL = `https://stellar.expert/explorer/${testnet ? 'testnet' : 'public'}/tx`
 const stellarConfig = {
   server: new Server(HORIZON_URL),
   txnOpts: {
@@ -174,7 +173,7 @@ async function claim (msg) {
 
 bot.once('ready', () => console.log(`Faucet bot logged in as ${DISCORD_CLIENT_ID}`))
 bot.on('messageCreate', async (msg) => {
-  const { channelId, content, author } = msg
+  const { channelId, author } = msg
   if (author.id === DISCORD_CLIENT_ID) return
   if (channelId === CHANNEL_ID_REGISTER) return register(msg)
   if (channelId === CHANNEL_ID_FAUCET) {
