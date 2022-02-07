@@ -48,7 +48,6 @@ const faucetAccount = Keypair.fromSecret(FAUCET_ACCOUNT_SECRETKEY)
 const send = sendPayment.bind(null, stellarConfig, asset, faucetAccount)
 const validate = validateAccount.bind(null, stellarConfig.server, asset)
 const usersDB = Datastore.create(`var/users.db`)
-const claimsDB = Datastore.create(`var/claims.db`)
 
 const pendingClaims = new Map()
 
@@ -75,7 +74,7 @@ async function register (msg) {
     return (await reply).edit(`:x: You are already registered. Are you looking for <#${CHANNEL_ID_FAUCET}>?`)
   }
 
-  if (user.address === content) {
+  if (user?.address === content) {
     return (await reply).edit(`:x: That address is already registered to another user.`)
   }
 
@@ -91,7 +90,8 @@ async function register (msg) {
     await usersDB.insert({
       user_id: author.id,
       username: author.username,
-      address: address.address
+      address: address.address,
+      next_claim: null
     })
   } catch (e) {
     console.error(`${new Date().toISOString()} - Error saving to the db`)
@@ -120,22 +120,24 @@ async function claim (msg) {
 
   let reply = msg.reply(`<a:loading:914121630060515338> Welcome back ${author.username}! Checking if you can claim.`)
 
-  const lastClaim = await claimsDB.findOne({ user_id: author.id }).sort({ claimed_on: -1 })
-  const now = new Date()
-  // DB returns null (falsey) if no record is found. This is probably the user's
-  // first time claiming so allow it.
-  const canClaim = lastClaim ? compareAsc(now, lastClaim.next_claim) > -1 : true
-
-  if (!canClaim) {
-    const nextClaim = formatDistance(lastClaim.next_claim, now, { addSuffix: true })
-    return (await reply).edit(`:x: Try again ${nextClaim}`)
-  }
-
   const user = await usersDB.findOne({ user_id: author.id })
+
   if (!user) {
     const date = new Date().toISOString()
     console.warn(`${date} - ${author.username} is not in the DB but has access to the faucet.`)
     return (await reply).edit(`:x: I couldn't find you in the database. <@${ADMIN_USER_ID}>, halp!`)
+  }
+
+  const nextClaim = user.next_claim
+  const now = new Date()
+  // `next_claim` is set to null upon registration. This is the user's first time
+  // claiming so allow it, check dates otherwise.
+  const canClaim = nextClaim ? compareAsc(now, nextClaim) > -1 : true
+
+  if (!canClaim) {
+    const _now = add(now, { hours: 23, minutes: 53 })
+    const when = formatDistance(nextClaim, now, { addSuffix: true })
+    return (await reply).edit(`:x: Try again ${when}`)
   }
 
   const { address } = user
@@ -162,16 +164,11 @@ async function claim (msg) {
   reply.edit(`:white_check_mark: Sent ${amount} ${asset.code} to ${shortAddress}! You may claim again in 24 hours.`)
 
   try {
-    return await claimsDB.insert({
-      user_id: author.id,
-      claimed_on: now,
-      next_claim: add(now, { hours: 24 }),
-      amount,
-      fee: faucetClaim.txn.fee_charged,
-      txn_hash: faucetClaim.txn.hash
+    return await usersDB.update({ user_id: author.id }, {
+      $set: { next_claim: add(now, { hours: 24 }) }
     })
   } catch (e) {
-    console.error(`${new Date().toISOString()} - Error saving to the claims db`)
+    console.error(`${new Date().toISOString()} - Error updating db`)
     console.error(e)
   }
 }
