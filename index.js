@@ -87,7 +87,7 @@ async function register (msg) {
     const { id, username } = author
     const date = new Date().toISOString()
     console.log(`${date} - ${username} ${id} entered an invalid address: ${content} - ${address.reason}`)
-    return (await reply).edit(`${statusEmojis.error} ${address.reason}. Please try a different Stellar address.`)
+    return (await reply).edit(`${statusEmojis.error} ${address.reason}. You need a funded Stellar account and a trustline to ${ASSET_CODE} to use the faucet.`)
   }
 
   try {
